@@ -1,0 +1,25 @@
+{
+  "name": "e-bookstore-app",
+  "version": "1.0.0",
+  "description": "Full-stack E-Bookstore Application (Node.js, Express, React, SQLite/PostgreSQL/MongoDB ready)",
+  "main": "server/src/server.js",
+  "scripts": {
+    "server": "node server/src/server.js",
+    "seed": "node server/src/seed.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "better-sqlite3": "^11.1.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.4"
+  }
+}
