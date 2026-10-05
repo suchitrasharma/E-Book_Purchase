@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Worm - Modern Dark E-Bookstore</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#2563eb',
+              blueHover: '#1d4ed8',
+              darkBg: '#121316',
+              sidebarBg: '#18191c',
+              cardBg: '#1e2024',
+              inputBg: '#23252a',
+              border: '#2c2f36'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #121316;
+      color: #e2e8f0;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #2c2f36;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #18191c;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-[#121316] text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP HEADER / NAV BAR (Exact match to slides: Book Worm | My Orders | My Wishlist | My Writers) -->
+  <header class="bg-[#18191c] border-b border-[#2c2f36] sticky top-0 z-40">
+    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      
+      <!-- Left: Logo & Nav Links -->
+      <div class="flex items-center gap-8">
+        <a href="#" onclick="navigate('home')" class="flex items-center gap-2.5 font-bold text-base text-white tracking-wide">
+          <div class="w-7 h-7 rounded bg-[#2563eb] text-white flex items-center justify-center">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+          </div>
+          <span>Book Worm</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-6 text-xs text-slate-400 font-medium">
+          <button onclick="navigate('orders')" class="hover:text-white transition-colors">My Orders</button>
+          <button onclick="navigate('wishlist')" class="hover:text-white transition-colors">My Wishlist</button>
+          <button onclick="navigate('home')" class="hover:text-white transition-colors">My Writers</button>
+        </nav>
+      </div>
+
+      <!-- Right: Search, Cart Icon with Badge, Profile -->
+      <div class="flex items-center gap-4">
+        <!-- Cart Button -->
+        <button onclick="navigate('checkout')" class="relative p-2 text-slate-300 hover:text-white hover:bg-[#23252a] rounded-lg transition-all flex items-center gap-1">
+          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          <span id="cartCountBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+            0
+          </span>
+        </button>
+
+        <!-- Profile Icon / Auth State -->
+        <div id="authActions" class="flex items-center gap-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER (Sidebar + Dynamic Content) -->
+  <div id="mainLayout" class="flex-1 max-w-[1500px] w-full mx-auto flex">
+    
+    <!-- LEFT SIDEBAR (Category Menu from wireframes: All, Romance, Mystery, Science Fiction...) -->
+    <aside id="categorySidebar" class="w-56 shrink-0 bg-[#18191c] border-r border-[#2c2f36] p-4 hidden md:block overflow-y-auto max-h-[calc(100vh-3.5rem)] custom-scroll">
+      <div class="space-y-1" id="categoriesList">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main id="appContainer" class="flex-1 p-6 md:p-8 overflow-x-hidden min-h-[calc(100vh-3.5rem)]">
+      <!-- Dynamic Views rendered here -->
+    </main>
+  </div>
+
+  <!-- COMPLETE PAYMENT MODAL (Exact match to Slide 8) -->
+  <div id="paymentModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" onclick="closePaymentModal()"></div>
+    <div class="relative bg-[#1e2024] border border-[#2c2f36] rounded-2xl shadow-2xl max-w-xl w-full p-6 mx-4 z-10 overflow-hidden">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-[#2c2f36]">
+        <h3 class="text-base font-bold text-white">Complete Payment</h3>
+        <div class="text-sm font-semibold text-slate-300">
+          Payable Amount: <span id="paymentModalAmount" class="text-white font-extrabold text-base">₹0</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 pt-6">
+        <!-- Payment Methods Tabs -->
+        <div class="col-span-1 border-r border-[#2c2f36] pr-3 space-y-1.5" id="paymentTabButtons">
+          <button type="button" onclick="switchPaymentMethod('Credit Card')" id="pmTab-CreditCard" class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold bg-[#2563eb] text-white">
+            Credit Card
+          </button>
+          <button type="button" onclick="switchPaymentMethod('Debit Card')" id="pmTab-DebitCard" class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-[#282a30]">
+            Debit Card
+          </button>
+          <button type="button" onclick="switchPaymentMethod('UPI')" id="pmTab-UPI" class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-[#282a30]">
+            UPI
+          </button>
+          <button type="button" onclick="switchPaymentMethod('Wallet')" id="pmTab-Wallet" class="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-[#282a30]">
+            Wallet
+          </button>
+        </div>
+
+        <!-- Payment Inputs -->
+        <div class="col-span-2 space-y-4">
+          <div id="cardFields" class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Card Number</label>
+              <input type="text" id="payCardNumber" placeholder="XXXX-XXXX-XXXX-XXXX" value="4242-4242-4242-4242" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Name on Card</label>
+              <input type="text" id="payCardName" placeholder="Name" value="Daniel Reed" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-medium text-slate-400 mb-1">CVV</label>
+                <input type="password" id="payCardCvv" placeholder="XXX" value="888" maxlength="4" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-slate-400 mb-1">Date of Expiry</label>
+                <input type="text" id="payCardExpiry" placeholder="MM/YYYY" value="12/2028" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+              </div>
+            </div>
+          </div>
+
+          <div id="upiFields" class="space-y-3 hidden">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Virtual Payment Address (VPA / UPI ID)</label>
+              <input type="text" id="payUpiId" placeholder="username@okhdfcbank" value="daniel@upi" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+            </div>
+          </div>
+
+          <div id="walletFields" class="space-y-3 hidden">
+            <div class="p-3 bg-[#141518] border border-[#2c2f36] rounded-lg text-xs text-slate-300">
+              <span class="font-bold text-white">Book Worm Digital Wallet</span>
+              <p class="text-[11px] text-slate-400 mt-1">Available balance: ₹2,500.00</p>
+            </div>
+          </div>
+
+          <div class="pt-3 flex justify-end">
+            <button
+              type="button"
+              id="confirmPayBtn"
+              onclick="executePayment()"
+              class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-md transition-all"
+            >
+              <span>Pay Now</span>
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PURCHASE SUCCESS CONFIRMATION MODAL (Exact match to Slide 9) -->
+  <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+    <div class="relative bg-[#1e2024] border border-[#2c2f36] rounded-2xl shadow-2xl max-w-lg w-full p-8 mx-4 z-10 text-center">
+      
+      <!-- Green Checkmark Icon -->
+      <div class="w-12 h-12 bg-[#16a34a] text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/20">
+        <i data-lucide="check" class="w-6 h-6 stroke-[3]"></i>
+      </div>
+
+      <h3 class="text-base font-bold text-white mb-6">
+        Your purchase of the following reads is successful
+      </h3>
+
+      <!-- Purchased Books Preview Grid -->
+      <div id="purchasedBooksPreview" class="grid grid-cols-2 gap-4 mb-6 text-left">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <button
+        onclick="closeSuccessModalAndRedirect()"
+        class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold px-6 py-2.5 rounded-lg inline-flex items-center gap-2 shadow-md transition-all"
+      >
+        <span>Continue your Shopping</span>
+        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+    <div class="relative bg-[#1e2024] border border-[#2c2f36] rounded-2xl shadow-2xl max-w-md w-full p-6 mx-4 z-10">
+      <div class="flex justify-between items-center mb-5 pb-3 border-b border-[#2c2f36]">
+        <h3 id="authModalTitle" class="text-base font-bold text-white">Sign In to Book Worm</h3>
+        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div id="authNameField" class="hidden">
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Full Name</label>
+          <input type="text" id="authName" class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]" placeholder="Daniel Reed">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Email Address</label>
+          <input type="email" id="authEmail" required class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]" placeholder="customer@example.com">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Password</label>
+          <input type="password" id="authPassword" required class="w-full bg-[#141518] border border-[#2c2f36] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#2563eb]" placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold py-2.5 rounded-lg text-xs transition-all shadow-md">
+          <span id="authSubmitBtnText">Sign In</span>
+        </button>
+      </form>
+
+      <div class="mt-4 text-center text-xs text-slate-400">
+        <span id="authTogglePrompt">Don't have an account?</span>
+        <button id="authToggleBtn" onclick="toggleAuthMode()" class="text-[#2563eb] font-semibold ml-1 hover:underline">
+          Create Account
+        </button>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-[#2c2f36] text-[11px] text-slate-400 space-y-1">
+        <p class="font-semibold text-slate-300">Demo Credentials:</p>
+        <p>• User: <code>customer@example.com</code> / <code>password123</code></p>
+        <p>• Admin: <code>admin@example.com</code> / <code>admin123</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script src="app.js"></script>
+</body>
+</html>
