@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  bookworm-api:
+    build: .
+    container_name: bookworm-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - bookworm-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    restart: unless-stopped
+
+  bookworm-client:
+    image: nginx:alpine
+    container_name: bookworm-client
+    ports:
+      - "3000:80"
+    volumes:
+      - ./client:/usr/share/nginx/html:ro
+    depends_on:
+      - bookworm-api
+    restart: unless-stopped
+
+volumes:
+  bookworm-data:
